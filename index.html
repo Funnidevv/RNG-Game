@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RNG Game</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+  body {
+    margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #2c3e50, #3498db);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 2rem;
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 0.1rem;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+  }
+
+  main {
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 2rem;
+    width: 320px;
+    box-shadow: 0 0 20px rgba(255,255,255,0.2);
+  }
+
+  .scoreboard, .gameplay {
+    margin-bottom: 2rem;
+  }
+
+  .scoreboard h2, .gameplay h2 {
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #fff;
+    padding-bottom: 0.5rem;
+  }
+
+  #rng-result {
+    font-size: 4rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 1rem 0;
+    animation: pop 0.4s ease forwards;
+  }
+
+  @keyframes pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  button {
+    background: #2980b9;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background 0.3s ease;
+    width: 100%;
+  }
+
+  button:hover {
+    background: #3498db;
+  }
+
+  .leaderboard-list {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .leaderboard-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    font-weight: 600;
+  }
+
+  .leaderboard-list li:nth-child(odd) {
+    background: rgba(255,255,255,0.05);
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+  }
+
+  .info-text {
+    font-size: 0.9rem;
+    text-align: center;
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+    color: #ccc;
+  }
+
+  footer {
+    margin-top: auto;
+    padding: 1rem;
+    font-size: 0.85rem;
+    color: #ddd;
+  }
+</style>
+</head>
+<body>
+
+<header>RNG Master</header>
+
+<main>
+  <section class="gameplay">
+    <h2>Play</h2>
+    <div id="rng-result">-</div>
+    <button id="generate-btn">Generate Random Number</button>
+    <p class="info-text">Try to get numbers between 70 and 100 for high points!</p>
+    <p>Your Score: <span id="current-score">0</span></p>
+    <button id="save-score-btn" disabled>Save Score to Leaderboard</button>
+  </section>
+
+  <section class="scoreboard">
+    <h2>Leaderboard</h2>
+    <ul id="leaderboard" class="leaderboard-list"></ul>
+    <input type="text" id="player-name" placeholder="Enter your name" maxlength="12" />
+  </section>
+</main>
+
+<footer>Created by ChatGPT &nbsp;|&nbsp; Fully client-side, works on GitHub Pages</footer>
+
+<script>
+  (() => {
+    const rngResult = document.getElementById('rng-result');
+    const generateBtn = document.getElementById('generate-btn');
+    const currentScoreEl = document.getElementById('current-score');
+    const saveScoreBtn = document.getElementById('save-score-btn');
+    const leaderboardEl = document.getElementById('leaderboard');
+    const playerNameInput = document.getElementById('player-name');
+
+    // State
+    let currentScore = 0;
+    let lastNumber = null;
+    let leaderboard = [];
+
+    // Load leaderboard from localStorage
+    function loadLeaderboard() {
+      const data = localStorage.getItem('rngMasterLeaderboard');
+      if (data) {
+        leaderboard = JSON.parse(data);
+      } else {
+        leaderboard = [];
+      }
+      renderLeaderboard();
+    }
+
+    // Save leaderboard to localStorage
+    function saveLeaderboard() {
+      localStorage.setItem('rngMasterLeaderboard', JSON.stringify(leaderboard));
+    }
+
+    // Render leaderboard UI
+    function renderLeaderboard() {
+      leaderboardEl.innerHTML = '';
+      if (leaderboard.length === 0) {
+        leaderboardEl.innerHTML = '<li style="text-align:center; color:#bbb;">No scores yet</li>';
+        return;
+      }
+
+      leaderboard.forEach(({ name, score }, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span>#${index + 1} ${name}</span><span>${score}</span>`;
+        leaderboardEl.appendChild(li);
+      });
+    }
+
+    // RNG function with scoring logic
+    function generateRandomNumber() {
+      const num = Math.floor(Math.random() * 100) + 1; // 1 - 100
+      lastNumber = num;
+
+      // Animate display
+      rngResult.textContent = num;
+      rngResult.style.animation = 'none';
+      rngResult.offsetHeight; // trigger reflow
+      rngResult.style.animation = null;
+
+      // Scoring: 70-100 => +10 points, 40-69 => +5, else 0
+      if (num >= 70) {
+        currentScore += 10;
+      } else if (num >= 40) {
+        currentScore += 5;
+      }
+
+      currentScoreEl.textContent = currentScore;
+
+      // Enable save button if score > 0
+      saveScoreBtn.disabled = currentScore === 0;
+
+      return num;
+    }
+
+    // Save current score with player name to leaderboard
+    function saveScore() {
+      const name = playerNameInput.value.trim();
+      if (!name) {
+        alert('Please enter your name before saving your score.');
+        playerNameInput.focus();
+        return;
+      }
+
+      // Add new score
+      leaderboard.push({ name: name, score: currentScore });
+
+      // Sort descending
+      leaderboard.sort((a, b) => b.score - a.score);
+
+      // Keep top 10 scores only
+      leaderboard = leaderboard.slice(0, 10);
+
+      saveLeaderboard();
+      renderLeaderboard();
+
+      // Reset current game
+      currentScore = 0;
+      currentScoreEl.textContent = currentScore;
+      rngResult.textContent = '-';
+      saveScoreBtn.disabled = true;
+      playerNameInput.value = '';
+
+      alert('Score saved! Good luck!');
+    }
+
+    // Initialize
+    function init() {
+      loadLeaderboard();
+
+      generateBtn.addEventListener('click', generateRandomNumber);
+      saveScoreBtn.addEventListener('click', saveScore);
+
+      // Load last game score (optional)
+      const savedScore = localStorage.getItem('rngMasterCurrentScore');
+      if (savedScore) {
+        currentScore = parseInt(savedScore, 10);
+        currentScoreEl.textContent = currentScore;
+        saveScoreBtn.disabled = currentScore === 0;
+      }
+
+      // Save current score on unload
+      window.addEventListener('beforeunload', () => {
+        localStorage.setItem('rngMasterCurrentScore', currentScore.toString());
+      });
+    }
+
+    init();
+  })();
+</script>
+
+</body>
+</html>
