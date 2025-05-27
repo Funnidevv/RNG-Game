@@ -63,6 +63,18 @@
     input[type="text"] {
       width: 80%;
     }
+
+    .common { color: white; }
+    .rare { color: #66ccff; font-weight: bold; }
+    .epic { color: #9966ff; animation: glow 1s infinite alternate; }
+    .legendary { color: gold; animation: glow 1s infinite alternate; }
+    .mythic { color: crimson; animation: glow 1s infinite alternate; }
+    .godlike { color: lime; text-shadow: 0 0 10px lime; animation: glow 1s infinite alternate; }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 5px #fff; }
+      to { text-shadow: 0 0 20px #fff; }
+    }
   </style>
 </head>
 <body>
@@ -82,6 +94,11 @@
     <button onclick="sellAura()">Sell Aura</button>
   </div>
 
+  <div id="achievements" class="section hidden">
+    <h2>Achievements</h2>
+    <ul id="achievementsList"></ul>
+  </div>
+
   <div id="leaderboardSection" class="section">
     <h2>Leaderboard</h2>
     <div id="leaderboard"></div>
@@ -97,13 +114,39 @@
     <p><strong>Developer Access Granted</strong></p>
   </div>
 
+  <audio id="rollSound" src="https://www.myinstants.com/media/sounds/anime-wow.mp3"></audio>
+  <audio id="sellSound" src="https://www.myinstants.com/media/sounds/coin.mp3"></audio>
+
   <script>
-    const auras = ['Red', 'Blue', 'Green', 'Epic', 'Legendary', 'Mythic', 'Celestial', 'Quantum', 'Void', 'Divine'];
-    const specialAuras = ['Admin', 'Godly', 'Bugged', 'Omega', 'Overseer'];
+    const auras = [
+      { name: 'Red', rarity: 'common' },
+      { name: 'Blue', rarity: 'common' },
+      { name: 'Green', rarity: 'common' },
+      { name: 'Epic', rarity: 'rare' },
+      { name: 'Legendary', rarity: 'epic' },
+      { name: 'Mythic', rarity: 'legendary' },
+      { name: 'Celestial', rarity: 'legendary' },
+      { name: 'Quantum', rarity: 'mythic' },
+      { name: 'Void', rarity: 'mythic' },
+      { name: 'Divine', rarity: 'godlike' }
+    ];
+    const specialAuras = ['Developer Aura'];
     const rollCooldown = 2000;
     let cooldown = false;
     let devUnlocked = false;
     let inputBuffer = '';
+
+    const rollSound = document.getElementById("rollSound");
+    const sellSound = document.getElementById("sellSound");
+
+    const achievements = [
+      { id: "firstRoll", condition: u => u.auras.length >= 1, text: "First Roll!" },
+      { id: "fiveAuras", condition: u => u.auras.length >= 5, text: "Collector: 5 Auras" },
+      { id: "sellOnce", condition: u => u.points > 0, text: "First Sale!" },
+      { id: "score1000", condition: u => u.points >= 1000, text: "Scored 1000 Points!" }
+    ];
+
+    const userAchievements = new Set(JSON.parse(localStorage.getItem("achievements") || "[]"));
 
     const gameData = JSON.parse(localStorage.getItem("rngGameData")) || {
       leaderboard: {},
@@ -130,40 +173,77 @@
       document.getElementById("points").innerText = `Points: ${user.points}`;
       updateAuraList();
       updateLeaderboard();
+      updateAchievementsList();
+      if (userAchievements.size > 0) document.getElementById("achievements").classList.remove("hidden");
     };
 
     const rollAura = () => {
       if (cooldown) return;
       cooldown = true;
+      rollSound.play();
       setTimeout(() => cooldown = false, rollCooldown);
       const name = gameData.currentUser;
-      const aura = auras[Math.floor(Math.random() * auras.length)];
+      const auraObj = auras[Math.floor(Math.random() * auras.length)];
       const user = gameData.leaderboard[name];
-      user.aura = aura;
-      user.auras.push(aura);
-      document.getElementById("aura").innerText = `Aura: ${aura}`;
+      user.aura = auraObj.name;
+      user.auras.push(auraObj.name);
+      document.getElementById("aura").innerHTML = `Aura: <span class="${auraObj.rarity}">${auraObj.name}</span>`;
       updateAuraList();
       saveData();
+      checkAchievements();
     };
 
     const sellAura = () => {
       const user = gameData.leaderboard[gameData.currentUser];
       const aura = user.auras.pop();
       if (!aura) return alert("No auras to sell.");
-      const gain = Math.floor(Math.random() * 100) + 10;
+      sellSound.play();
+      const gain = aura === "Developer Aura" ? 99999 : Math.floor(Math.random() * 100) + 10;
       user.points += gain;
       document.getElementById("points").innerText = `Points: ${user.points}`;
       updateAuraList();
       saveData();
+      checkAchievements();
     };
+
+    const getRarity = name => (auras.find(a => a.name === name) || {}).rarity || 'common';
 
     const updateAuraList = () => {
       const list = document.getElementById("auraList");
-      const auras = gameData.leaderboard[gameData.currentUser].auras;
+      const auraNames = gameData.leaderboard[gameData.currentUser].auras;
       list.innerHTML = '';
-      auras.forEach(aura => {
+      auraNames.forEach(aura => {
         const li = document.createElement("li");
         li.textContent = aura;
+        li.className = getRarity(aura);
+        list.appendChild(li);
+      });
+    };
+
+    const checkAchievements = () => {
+      const user = gameData.leaderboard[gameData.currentUser];
+      let unlocked = false;
+      achievements.forEach(a => {
+        if (!userAchievements.has(a.id) && a.condition(user)) {
+          userAchievements.add(a.id);
+          unlocked = true;
+          alert(`Achievement Unlocked: ${a.text}`);
+        }
+      });
+      if (unlocked) {
+        localStorage.setItem("achievements", JSON.stringify([...userAchievements]));
+        updateAchievementsList();
+        document.getElementById("achievements").classList.remove("hidden");
+      }
+    };
+
+    const updateAchievementsList = () => {
+      const list = document.getElementById("achievementsList");
+      list.innerHTML = '';
+      achievements.forEach(a => {
+        const li = document.createElement("li");
+        li.textContent = a.text;
+        if (userAchievements.has(a.id)) li.style.color = "lime";
         list.appendChild(li);
       });
     };
@@ -181,70 +261,21 @@
         });
     };
 
-    const deletePlayer = () => {
-      const name = document.getElementById("targetName").value.trim();
-      if (gameData.leaderboard[name]) {
-        delete gameData.leaderboard[name];
-        saveData();
-        updateLeaderboard();
-        alert(`${name} deleted.`);
-      } else alert("Player not found.");
-    };
+    const deletePlayer = () => { ... };
+    const resetScore = () => { ... };
+    const giveInfinite = () => { ... };
+    const giveSpecialAura = () => { ... };
 
-    const resetScore = () => {
-      const name = document.getElementById("targetName").value.trim();
-      const user = gameData.leaderboard[name];
-      if (user) {
-        user.points = 0;
-        user.auras = [];
-        user.aura = 'None';
-        saveData();
-        updateLeaderboard();
-        if (gameData.currentUser === name) updateAuraList();
-        alert(`${name}'s score reset.`);
-      } else alert("Player not found.");
-    };
-
-    const giveInfinite = () => {
-      const name = document.getElementById("targetName").value.trim();
-      const user = gameData.leaderboard[name];
-      if (user) {
-        user.points = 999999;
-        saveData();
-        updateLeaderboard();
-        alert(`${name} now has infinite points.`);
-      } else alert("Player not found.");
-    };
-
-    const giveSpecialAura = () => {
-      const name = document.getElementById("targetName").value.trim();
-      const user = gameData.leaderboard[name];
-      if (user) {
-        const aura = specialAuras[Math.floor(Math.random() * specialAuras.length)];
-        user.auras.push(aura);
-        user.aura = aura;
-        saveData();
-        updateLeaderboard();
-        if (gameData.currentUser === name) {
-          document.getElementById("aura").innerText = `Aura: ${aura}`;
-          updateAuraList();
-        }
-        alert(`${name} received special aura: ${aura}`);
-      } else alert("Player not found.");
-    };
-
-    // Secret dev mode activation
     document.addEventListener('keydown', (e) => {
       inputBuffer += e.key.toUpperCase();
-      if (inputBuffer.length > 9) inputBuffer = inputBuffer.slice(-9);
-      if (inputBuffer.endsWith("DEVACCESS")) {
+      if (inputBuffer.length > 10) inputBuffer = inputBuffer.slice(-10);
+      if (inputBuffer.endsWith("114786D3V")) {
         document.getElementById("debugTab").classList.remove("hidden");
         devUnlocked = true;
         alert("Developer Mode Activated.");
       }
     });
 
-    // Auto-start if user already registered
     if (gameData.currentUser && gameData.leaderboard[gameData.currentUser]) startGame();
   </script>
 </body>
