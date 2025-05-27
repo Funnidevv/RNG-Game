@@ -1,269 +1,536 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" >
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>RNG Game</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
-
-  body {
-    margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg, #2c3e50, #3498db);
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-  }
-
-  header {
-    padding: 2rem;
-    font-size: 2.5rem;
-    font-weight: 700;
-    letter-spacing: 0.1rem;
-    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
-  }
-
-  main {
-    background: rgba(255,255,255,0.1);
-    border-radius: 12px;
-    padding: 2rem;
-    width: 320px;
-    box-shadow: 0 0 20px rgba(255,255,255,0.2);
-  }
-
-  .scoreboard, .gameplay {
-    margin-bottom: 2rem;
-  }
-
-  .scoreboard h2, .gameplay h2 {
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #fff;
-    padding-bottom: 0.5rem;
-  }
-
-  #rng-result {
-    font-size: 4rem;
-    font-weight: 700;
-    text-align: center;
-    margin: 1rem 0;
-    animation: pop 0.4s ease forwards;
-  }
-
-  @keyframes pop {
-    0% { transform: scale(0.5); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  button {
-    background: #2980b9;
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 8px;
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 1.1rem;
-    transition: background 0.3s ease;
-    width: 100%;
-  }
-
-  button:hover {
-    background: #3498db;
-  }
-
-  .leaderboard-list {
-    max-height: 200px;
-    overflow-y: auto;
-  }
-
-  .leaderboard-list li {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.4rem 0.6rem;
-    border-bottom: 1px solid rgba(255,255,255,0.2);
-    font-weight: 600;
-  }
-
-  .leaderboard-list li:nth-child(odd) {
-    background: rgba(255,255,255,0.05);
-  }
-
-  input[type="text"] {
-    width: 100%;
-    padding: 0.6rem 0.8rem;
-    border-radius: 6px;
-    border: none;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    box-sizing: border-box;
-  }
-
-  .info-text {
-    font-size: 0.9rem;
-    text-align: center;
-    margin-top: -1rem;
-    margin-bottom: 1rem;
-    color: #ccc;
-  }
-
-  footer {
-    margin-top: auto;
-    padding: 1rem;
-    font-size: 0.85rem;
-    color: #ddd;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RNG Game</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+    body {
+      margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #fff;
+      display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+    }
+    header {
+      padding: 2rem;
+      font-size: 2.8rem;
+      font-weight: 700;
+      letter-spacing: 0.1rem;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+    }
+    main {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 0 30px rgba(255,255,255,0.1);
+      display: flex; flex-direction: column; gap: 1.5rem;
+    }
+    button {
+      background: #2980b9;
+      border: none;
+      padding: 0.9rem 1.5rem;
+      border-radius: 10px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: background 0.3s ease;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button:hover:not(:disabled) {
+      background: #3498db;
+    }
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    .aura-display {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      padding: 1rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      box-shadow: 0 0 15px rgba(255,255,255,0.3);
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      user-select: none;
+      animation: glow 2s infinite alternate;
+    }
+    @keyframes glow {
+      0% { text-shadow: 0 0 5px #fff, 0 0 10px #2980b9, 0 0 20px #3498db;}
+      100% { text-shadow: 0 0 20px #fff, 0 0 40px #2980b9, 0 0 60px #3498db;}
+    }
+    .aura-category {
+      font-size: 1.2rem;
+      margin-top: 0.3rem;
+      font-weight: 500;
+      color: #eee;
+      text-transform: uppercase;
+    }
+    .coins {
+      font-weight: 700;
+      font-size: 1.3rem;
+      margin: 1rem 0;
+      text-align: center;
+    }
+    .inventory, .shop, .leaderboard-section {
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    h2 {
+      margin-top: 0; margin-bottom: 1rem;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 0.5rem;
+      font-weight: 700;
+      letter-spacing: 0.05rem;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+      max-height: 150px;
+      overflow-y: auto;
+      margin: 0;
+    }
+    li {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.3rem 0.6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      font-weight: 600;
+    }
+    li:last-child {
+      border-bottom: none;
+    }
+    .category-common { color: #bdc3c7; }
+    .category-rare { color: #2980b9; }
+    .category-epic { color: #9b59b6; }
+    .category-legendary { color: #f1c40f; }
+    .shop-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.4rem 0.6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      align-items: center;
+    }
+    .shop-item:last-child {
+      border-bottom: none;
+    }
+    .shop-item button {
+      width: auto;
+      padding: 0.4rem 0.8rem;
+      font-size: 1rem;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+      margin-top: 0.5rem;
+      margin-bottom: 1rem;
+      box-sizing: border-box;
+    }
+    footer {
+      margin-top: auto;
+      padding: 1rem;
+      font-size: 0.85rem;
+      color: #bbb;
+      text-align: center;
+    }
+    .flex-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.8rem;
+    }
+    .flex-col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+  </style>
 </head>
 <body>
 
-<header>RNG Master</header>
+<header>RNG Game</header>
 
 <main>
   <section class="gameplay">
-    <h2>Play</h2>
-    <div id="rng-result">-</div>
-    <button id="generate-btn">Generate Random Number</button>
-    <p class="info-text">Try to get numbers between 70 and 100 for high points!</p>
-    <p>Your Score: <span id="current-score">0</span></p>
-    <button id="save-score-btn" disabled>Save Score to Leaderboard</button>
+    <h2>Generate Aura</h2>
+    <div class="aura-display" id="aura-display">
+      -
+      <div class="aura-category" id="aura-category"></div>
+    </div>
+    <button id="generate-aura-btn">Generate Aura</button>
+    <button id="sell-aura-btn" disabled>Sell Aura for Coins</button>
+    <div class="coins" id="coins-display">Coins: 0</div>
   </section>
 
-  <section class="scoreboard">
+  <section class="inventory">
+    <h2>Your Auras</h2>
+    <ul id="inventory-list">
+      <li style="text-align:center; color:#bbb;">No auras collected yet.</li>
+    </ul>
+  </section>
+
+  <section class="shop">
+    <h2>Shop Upgrades</h2>
+    <ul id="shop-list">
+      <!-- Dynamically populated -->
+    </ul>
+  </section>
+
+  <section class="leaderboard-section">
     <h2>Leaderboard</h2>
-    <ul id="leaderboard" class="leaderboard-list"></ul>
+    <ul id="leaderboard-list">
+      <li style="text-align:center; color:#bbb;">No scores yet.</li>
+    </ul>
     <input type="text" id="player-name" placeholder="Enter your name" maxlength="12" />
+    <button id="save-score-btn" disabled>Save Coins to Leaderboard</button>
   </section>
 </main>
 
 <footer>Created by ChatGPT &nbsp;|&nbsp; Fully client-side, works on GitHub Pages</footer>
 
 <script>
-  (() => {
-    const rngResult = document.getElementById('rng-result');
-    const generateBtn = document.getElementById('generate-btn');
-    const currentScoreEl = document.getElementById('current-score');
-    const saveScoreBtn = document.getElementById('save-score-btn');
-    const leaderboardEl = document.getElementById('leaderboard');
-    const playerNameInput = document.getElementById('player-name');
+(() => {
+  const auraDisplay = document.getElementById('aura-display');
+  const auraCategoryEl = document.getElementById('aura-category');
+  const generateAuraBtn = document.getElementById('generate-aura-btn');
+  const sellAuraBtn = document.getElementById('sell-aura-btn');
+  const coinsDisplay = document.getElementById('coins-display');
+  const inventoryList = document.getElementById('inventory-list');
+  const shopList = document.getElementById('shop-list');
+  const leaderboardList = document.getElementById('leaderboard-list');
+  const playerNameInput = document.getElementById('player-name');
+  const saveScoreBtn = document.getElementById('save-score-btn');
 
-    // State
-    let currentScore = 0;
-    let lastNumber = null;
-    let leaderboard = [];
+  // Aura definitions with category, base sell price and weights (for RNG)
+  const AURAS = [
+    { name: 'Glowing Mist', category: 'Common', basePrice: 10, weight: 50 },
+    { name: 'Shimmering Breeze', category: 'Common', basePrice: 15, weight: 40 },
+    { name: 'Luminous Glow', category: 'Rare', basePrice: 50, weight: 25 },
+    { name: 'Twilight Spark', category: 'Rare', basePrice: 60, weight: 20 },
+    { name: 'Ethereal Flame', category: 'Epic', basePrice: 120, weight: 10 },
+    { name: 'Celestial Radiance', category: 'Epic', basePrice: 140, weight: 8 },
+    { name: 'Legendary Nova', category: 'Legendary', basePrice: 300, weight: 3 },
+    { name: 'Mythic Pulse', category: 'Legendary', basePrice: 350, weight: 2 },
+  ];
 
-    // Load leaderboard from localStorage
-    function loadLeaderboard() {
-      const data = localStorage.getItem('rngMasterLeaderboard');
-      if (data) {
+  // Shop upgrades
+  const SHOP_UPGRADES = [
+    {
+      id: 'better_chance',
+      name: 'Better Rare Chance',
+      description: 'Increase chance to get Rare+ auras.',
+      price: 500,
+      purchased: false,
+      effect: () => {
+        // Adjust weights to increase chance for Rare, Epic, Legendary
+        AURAS.forEach(a => {
+          if (a.category === 'Common') a.weight = 25;
+          else if (a.category === 'Rare') a.weight = 40;
+          else if (a.category === 'Epic') a.weight = 20;
+          else if (a.category === 'Legendary') a.weight = 15;
+        });
+      }
+    },
+    {
+      id: 'auto_generate',
+      name: 'Auto Generate Aura',
+      description: 'Automatically generate an aura every 10 seconds.',
+      price: 1000,
+      purchased: false,
+      effect: () => {
+        setupAutoGenerate();
+      }
+    },
+    {
+      id: 'sell_bonus',
+      name: 'Sell Bonus +20%',
+      description: 'Get 20% more coins when selling auras.',
+      price: 750,
+      purchased: false,
+      effect: () => {
+        gameState.sellBonus = 0.2;
+      }
+    }
+  ];
+
+  let gameState = {
+    coins: 0,
+    inventory: {},
+    currentAura: null,
+    sellBonus: 0,
+    totalCoinsEarned: 0,
+    upgrades: {}
+  };
+
+  let leaderboard = [];
+
+  // Weighted random aura selection
+  function weightedRandomAura() {
+    let totalWeight = AURAS.reduce((sum, a) => sum + a.weight, 0);
+    let rand = Math.random() * totalWeight;
+    for (const aura of AURAS) {
+      if (rand < aura.weight) return aura;
+      rand -= aura.weight;
+    }
+    return AURAS[0];
+  }
+
+  // Render functions
+  function renderCurrentAura() {
+    if (!gameState.currentAura) {
+      auraDisplay.textContent = '-';
+      auraCategoryEl.textContent = '';
+      return;
+    }
+    auraDisplay.textContent = gameState.currentAura.name;
+    auraCategoryEl.textContent = gameState.currentAura.category;
+    auraDisplay.className = 'aura-display category-' + gameState.currentAura.category.toLowerCase();
+  }
+
+  function renderCoins() {
+    coinsDisplay.textContent = 'Coins: ' + gameState.coins;
+  }
+
+  function renderInventory() {
+    const inv = gameState.inventory;
+    if (Object.keys(inv).length === 0) {
+      inventoryList.innerHTML = '<li style="text-align:center; color:#bbb;">No auras collected yet.</li>';
+      return;
+    }
+    inventoryList.innerHTML = '';
+    Object.entries(inv).forEach(([name, count]) => {
+      const aura = AURAS.find(a => a.name === name);
+      if (!aura) return;
+      const li = document.createElement('li');
+      li.className = 'category-' + aura.category.toLowerCase();
+      li.textContent = `${name} (${aura.category})`;
+      const span = document.createElement('span');
+      span.textContent = `x${count}`;
+      li.appendChild(span);
+      inventoryList.appendChild(li);
+    });
+  }
+
+  function renderShop() {
+    shopList.innerHTML = '';
+    SHOP_UPGRADES.forEach(upg => {
+      const li = document.createElement('li');
+      li.className = 'shop-item';
+      const desc = document.createElement('div');
+      desc.style.flex = '1';
+      desc.innerHTML = `<strong>${upg.name}</strong><br/><small>${upg.description}</small><br/><small>Price: ${upg.price} coins</small>`;
+      li.appendChild(desc);
+
+      const btn = document.createElement('button');
+      btn.textContent = upg.purchased ? 'Purchased' : 'Buy';
+      btn.disabled = upg.purchased || gameState.coins < upg.price;
+      btn.dataset.id = upg.id;
+      li.appendChild(btn);
+
+      shopList.appendChild(li);
+    });
+  }
+
+  function renderLeaderboard() {
+    if (leaderboard.length === 0) {
+      leaderboardList.innerHTML = '<li style="text-align:center; color:#bbb;">No scores yet.</li>';
+      return;
+    }
+    leaderboardList.innerHTML = '';
+    leaderboard.forEach(({name, coins}) => {
+      const li = document.createElement('li');
+      li.textContent = `${name}: ${coins} coins`;
+      leaderboardList.appendChild(li);
+    });
+  }
+
+  // Load/save game state
+  function saveGame() {
+    localStorage.setItem('rnggame_state', JSON.stringify(gameState));
+  }
+
+  function loadGame() {
+    const data = localStorage.getItem('rnggame_state');
+    if (data) {
+      try {
+        gameState = JSON.parse(data);
+        // Restore upgrades purchased flags
+        SHOP_UPGRADES.forEach(upg => {
+          upg.purchased = !!gameState.upgrades[upg.id];
+          if (upg.purchased && upg.effect) upg.effect();
+        });
+      } catch {}
+    }
+  }
+
+  // Load/save leaderboard
+  function saveLeaderboard() {
+    localStorage.setItem('rnggame_leaderboard', JSON.stringify(leaderboard));
+  }
+
+  function loadLeaderboard() {
+    const data = localStorage.getItem('rnggame_leaderboard');
+    if (data) {
+      try {
         leaderboard = JSON.parse(data);
+      } catch {}
+    }
+  }
+
+  // Buy upgrade
+  function buyUpgrade(id) {
+    const upg = SHOP_UPGRADES.find(u => u.id === id);
+    if (!upg || upg.purchased) return;
+    if (gameState.coins < upg.price) {
+      alert('Not enough coins!');
+      return;
+    }
+    gameState.coins -= upg.price;
+    upg.purchased = true;
+    gameState.upgrades[id] = true;
+    if (upg.effect) upg.effect();
+    renderCoins();
+    renderShop();
+    saveGame();
+  }
+
+  // Sell current aura
+  function sellCurrentAura() {
+    if (!gameState.currentAura) return;
+    const aura = gameState.currentAura;
+    let price = aura.basePrice;
+    if (gameState.sellBonus) {
+      price = Math.floor(price * (1 + gameState.sellBonus));
+    }
+    gameState.coins += price;
+    gameState.totalCoinsEarned += price;
+
+    // Add aura to inventory
+    if (!gameState.inventory[aura.name]) gameState.inventory[aura.name] = 0;
+    gameState.inventory[aura.name]++;
+
+    gameState.currentAura = null;
+    renderCoins();
+    renderInventory();
+    renderCurrentAura();
+    sellAuraBtn.disabled = true;
+    saveGame();
+    checkSaveButton();
+  }
+
+  // Auto generate aura setup
+  let autoGenerateInterval = null;
+  function setupAutoGenerate() {
+    if (autoGenerateInterval) clearInterval(autoGenerateInterval);
+    const upg = SHOP_UPGRADES.find(u => u.id === 'auto_generate');
+    if (upg && upg.purchased) {
+      autoGenerateInterval = setInterval(() => {
+        if (!gameState.currentAura) {
+          const aura = weightedRandomAura();
+          gameState.currentAura = aura;
+          renderCurrentAura();
+          sellAuraBtn.disabled = false;
+          generateAuraBtn.disabled = true;
+        }
+      }, 10000);
+    }
+  }
+
+  // Save score to leaderboard
+  function saveScore() {
+    const name = playerNameInput.value.trim();
+    if (!name) {
+      alert('Please enter your name.');
+      return;
+    }
+
+    // Add or update player score if higher
+    const existing = leaderboard.find(p => p.name.toLowerCase() === name.toLowerCase());
+    if (existing) {
+      if (gameState.totalCoinsEarned > existing.coins) {
+        existing.coins = gameState.totalCoinsEarned;
       } else {
-        leaderboard = [];
-      }
-      renderLeaderboard();
-    }
-
-    // Save leaderboard to localStorage
-    function saveLeaderboard() {
-      localStorage.setItem('rngMasterLeaderboard', JSON.stringify(leaderboard));
-    }
-
-    // Render leaderboard UI
-    function renderLeaderboard() {
-      leaderboardEl.innerHTML = '';
-      if (leaderboard.length === 0) {
-        leaderboardEl.innerHTML = '<li style="text-align:center; color:#bbb;">No scores yet</li>';
+        alert('You already have a higher score saved.');
         return;
       }
-
-      leaderboard.forEach(({ name, score }, index) => {
-        const li = document.createElement('li');
-        li.innerHTML = `<span>#${index + 1} ${name}</span><span>${score}</span>`;
-        leaderboardEl.appendChild(li);
-      });
+    } else {
+      leaderboard.push({ name, coins: gameState.totalCoinsEarned });
     }
+    // Sort desc
+    leaderboard.sort((a,b) => b.coins - a.coins);
 
-    // RNG function with scoring logic
-    function generateRandomNumber() {
-      const num = Math.floor(Math.random() * 100) + 1; // 1 - 100
-      lastNumber = num;
+    // Keep top 10
+    leaderboard = leaderboard.slice(0,10);
 
-      // Animate display
-      rngResult.textContent = num;
-      rngResult.style.animation = 'none';
-      rngResult.offsetHeight; // trigger reflow
-      rngResult.style.animation = null;
+    saveLeaderboard();
+    renderLeaderboard();
 
-      // Scoring: 70-100 => +10 points, 40-69 => +5, else 0
-      if (num >= 70) {
-        currentScore += 10;
-      } else if (num >= 40) {
-        currentScore += 5;
-      }
+    saveScoreBtn.disabled = true;
+  }
 
-      currentScoreEl.textContent = currentScore;
+  // Enable/disable save score button based on input
+  function checkSaveButton() {
+    saveScoreBtn.disabled = !playerNameInput.value.trim() || gameState.totalCoinsEarned === 0;
+  }
 
-      // Enable save button if score > 0
-      saveScoreBtn.disabled = currentScore === 0;
+  // Generate aura button handler
+  function generateAura() {
+    if (gameState.currentAura) return; // Only one aura at a time
+    const aura = weightedRandomAura();
+    gameState.currentAura = aura;
+    renderCurrentAura();
+    sellAuraBtn.disabled = false;
+    generateAuraBtn.disabled = true;
+  }
 
-      return num;
+  // Setup event listeners
+  generateAuraBtn.addEventListener('click', () => {
+    generateAura();
+  });
+
+  sellAuraBtn.addEventListener('click', () => {
+    sellCurrentAura();
+    generateAuraBtn.disabled = false;
+  });
+
+  shopList.addEventListener('click', e => {
+    if (e.target.tagName === 'BUTTON') {
+      const id = e.target.dataset.id;
+      buyUpgrade(id);
     }
+  });
 
-    // Save current score with player name to leaderboard
-    function saveScore() {
-      const name = playerNameInput.value.trim();
-      if (!name) {
-        alert('Please enter your name before saving your score.');
-        playerNameInput.focus();
-        return;
-      }
+  saveScoreBtn.addEventListener('click', () => {
+    saveScore();
+  });
 
-      // Add new score
-      leaderboard.push({ name: name, score: currentScore });
+  playerNameInput.addEventListener('input', checkSaveButton);
 
-      // Sort descending
-      leaderboard.sort((a, b) => b.score - a.score);
+  // Initialize
+  function init() {
+    loadGame();
+    loadLeaderboard();
+    renderCoins();
+    renderInventory();
+    renderShop();
+    renderCurrentAura();
+    checkSaveButton();
+    setupAutoGenerate();
+  }
 
-      // Keep top 10 scores only
-      leaderboard = leaderboard.slice(0, 10);
-
-      saveLeaderboard();
-      renderLeaderboard();
-
-      // Reset current game
-      currentScore = 0;
-      currentScoreEl.textContent = currentScore;
-      rngResult.textContent = '-';
-      saveScoreBtn.disabled = true;
-      playerNameInput.value = '';
-
-      alert('Score saved! Good luck!');
-    }
-
-    // Initialize
-    function init() {
-      loadLeaderboard();
-
-      generateBtn.addEventListener('click', generateRandomNumber);
-      saveScoreBtn.addEventListener('click', saveScore);
-
-      // Load last game score (optional)
-      const savedScore = localStorage.getItem('rngMasterCurrentScore');
-      if (savedScore) {
-        currentScore = parseInt(savedScore, 10);
-        currentScoreEl.textContent = currentScore;
-        saveScoreBtn.disabled = currentScore === 0;
-      }
-
-      // Save current score on unload
-      window.addEventListener('beforeunload', () => {
-        localStorage.setItem('rngMasterCurrentScore', currentScore.toString());
-      });
-    }
-
-    init();
-  })();
+  init();
+})();
 </script>
 
 </body>
