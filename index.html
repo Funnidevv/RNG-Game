@@ -2,275 +2,228 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Aura RNG Game</title>
   <style>
-    :root {
-      --primary: #6c63ff;
-      --bg: #121212;
-      --card-bg: rgba(255, 255, 255, 0.05);
-      --border: rgba(255, 255, 255, 0.1);
-      --text: #f0f0f0;
-      --accent: #00ffd0;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
     body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #1f1c2c, #928dab);
+      color: #fff;
+      text-align: center;
       padding: 20px;
     }
 
     h1 {
-      font-size: 2.5rem;
-      color: var(--accent);
-      margin-bottom: 20px;
-    }
-
-    .container {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 15px;
-      padding: 25px;
-      width: 100%;
-      max-width: 500px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(10px);
-      margin-bottom: 20px;
-    }
-
-    input[type="text"] {
-      padding: 10px;
-      width: 70%;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-      background: #1f1f1f;
-      color: var(--text);
       margin-bottom: 10px;
     }
 
-    button {
-      padding: 10px 20px;
-      background: var(--primary);
-      border: none;
-      border-radius: 8px;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s ease;
+    input, button, select {
+      padding: 10px;
       margin: 5px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+      background: #5e60ce;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s ease;
     }
 
     button:hover {
-      background: #4d45e2;
+      background: #4ea8de;
     }
 
-    button:disabled {
-      background: #555;
-      cursor: not-allowed;
-    }
-
-    #auraDisplay {
-      font-size: 1.2rem;
-      margin: 10px 0;
-    }
-
-    .aura-count {
-      font-size: 2rem;
-      font-weight: bold;
-      color: var(--accent);
-    }
-
-    .aura-type {
-      font-weight: bold;
-    }
-
-    #lastAura {
-      margin-top: 10px;
-      font-size: 1.1rem;
-    }
-
-    .dev-mode {
-      color: #ff4a4a;
-      margin-top: 10px;
-    }
-
-    ol {
-      list-style: none;
-      padding-left: 0;
-    }
-
-    li {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border);
-      padding: 10px;
-      margin: 5px 0;
+    .section {
+      margin: 20px auto;
+      max-width: 600px;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 20px;
       border-radius: 10px;
     }
 
-    .aura-category.Common { color: #cccccc; }
-    .aura-category.Uncommon { color: #6effa1; }
-    .aura-category.Rare { color: #00bfff; }
-    .aura-category.Epic { color: #c770ff; }
-    .aura-category.Legendary { color: #ffa500; }
-    .aura-category.Mythic { color: #ff4da6; }
-    .aura-category.Celestial { color: #00ffe1; }
-    .aura-category.Corrupted { color: #ff3333; }
+    #leaderboard, #debugTab {
+      white-space: pre-line;
+      word-wrap: break-word;
+      user-select: none;
+    }
 
+    .hidden {
+      display: none;
+    }
+
+    .aura-list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .aura-list li {
+      background: rgba(255, 255, 255, 0.1);
+      margin: 5px 0;
+      padding: 5px;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
   <h1>Aura RNG Game</h1>
-
-  <div class="container" id="nameInputDiv">
-    <input id="playerName" type="text" placeholder="Enter unique name" />
-    <button onclick="startGame()">Start Game</button>
+  <div class="section">
+    <input id="nameInput" placeholder="Enter your name" />
+    <button onclick="register()">Start</button>
   </div>
 
-  <div class="container" id="game" style="display: none;">
-    <div id="auraDisplay">Auras Collected: <span class="aura-count" id="auraCount">0</span></div>
-    <button id="rollBtn" onclick="rollAura()">🎲 Roll Aura</button>
-    <p id="lastAura"></p>
-    <p id="devIndicator" class="dev-mode" style="display: none;">👨‍💻 Developer Mode Enabled</p>
-    <button onclick="enterDevMode()">Enter Dev Mode</button>
+  <div id="game" class="section hidden">
+    <p id="welcome"></p>
+    <p id="aura">Aura: None</p>
+    <p id="points">Points: 0</p>
+    <button id="rollBtn" onclick="rollAura()">Roll Aura</button>
+    <ul id="auraList" class="aura-list"></ul>
+    <button onclick="sellAura()">Sell Aura</button>
+    <button onclick="toggleDebug()" id="devBtn" class="hidden">Open Debug Tab</button>
   </div>
 
-  <div class="container" id="leaderboard">
-    <h2>🏆 Leaderboard</h2>
-    <ol id="leaderboardList"></ol>
+  <div id="leaderboardSection" class="section">
+    <h2>Leaderboard</h2>
+    <div id="leaderboard"></div>
+  </div>
+
+  <div id="debugTab" class="section hidden">
+    <h2>Developer Debug Tab</h2>
+    <input id="targetName" placeholder="Player name" />
+    <button onclick="deletePlayer()">Delete Player</button>
+    <button onclick="resetScore()">Reset Score</button>
+    <p><b>Developer Key Verified</b></p>
   </div>
 
   <script>
-    const auraTypes = [
-      "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Celestial", "Corrupted"
-    ];
-    const auraChances = [40, 25, 15, 10, 5, 3, 1.5, 0.5];
-    const cooldownTime = 3000;
-    const DEV_KEY = "d3v-2a9b91f4f3e048fa9bcdab1a7f4f";
+    const secureKey = '2rY8s9Q3vT5bM1zLkE7oP0xCgFuJhV9a'; // Secure dev key
+    const rollCooldown = 2000; // 2 seconds cooldown
+    const auras = ['Red', 'Blue', 'Green', 'Epic', 'Legendary', 'Mythic', 'Celestial', 'Quantum', 'Void', 'Divine'];
+    let cooldownActive = false;
 
-    let auraCount = 0;
-    let isDev = false;
-    let playerName = "";
+    const gameData = JSON.parse(localStorage.getItem("rngGameData")) || {
+      leaderboard: {},
+      currentUser: null,
+      users: {}
+    };
 
-    function startGame() {
-      const nameInput = document.getElementById("playerName").value.trim();
-      if (!nameInput) {
-        alert("Name cannot be empty.");
+    const saveData = () => localStorage.setItem("rngGameData", JSON.stringify(gameData));
+
+    const register = () => {
+      const name = document.getElementById("nameInput").value.trim();
+      if (!name || gameData.leaderboard[name]) {
+        alert("Enter a unique name.");
         return;
       }
+      gameData.currentUser = name;
+      gameData.leaderboard[name] = { aura: 'None', points: 0, auras: [] };
+      gameData.users[name] = {};
+      saveData();
+      startGame();
+    };
 
-      const leaderboard = getLeaderboard();
-      if (leaderboard.some(player => player.name.toLowerCase() === nameInput.toLowerCase())) {
-        alert("Name already exists. Pick a new one.");
-        return;
-      }
-
-      playerName = nameInput;
-      document.getElementById("nameInputDiv").style.display = "none";
-      document.getElementById("game").style.display = "block";
-
-      loadGame();
-      updateDisplay();
-    }
-
-    function rollAura() {
-      const rollBtn = document.getElementById("rollBtn");
-      if (!isDev) {
-        rollBtn.disabled = true;
-        setTimeout(() => rollBtn.disabled = false, cooldownTime);
-      }
-
-      const aura = getRandomAura();
-      auraCount += 1;
-      document.getElementById("lastAura").innerHTML = `You rolled a <span class="aura-category ${aura}">${aura}</span> aura!`;
-      updateDisplay();
-      saveGame();
-    }
-
-    function getRandomAura() {
-      let rand = Math.random() * 100;
-      for (let i = 0; i < auraTypes.length; i++) {
-        if (rand < auraChances[i]) {
-          return auraTypes[i];
-        }
-        rand -= auraChances[i];
-      }
-      return auraTypes[0];
-    }
-
-    function updateDisplay() {
-      document.getElementById("auraCount").textContent = auraCount;
+    const startGame = () => {
+      const name = gameData.currentUser;
+      const user = gameData.leaderboard[name];
+      document.getElementById("welcome").innerText = `Welcome, ${name}`;
+      document.getElementById("aura").innerText = `Aura: ${user.aura}`;
+      document.getElementById("points").innerText = `Points: ${user.points}`;
+      updateAuraList();
+      document.getElementById("game").classList.remove("hidden");
       updateLeaderboard();
-    }
-
-    function saveGame() {
-      const data = {
-        auraCount,
-        playerName,
-        isDev
-      };
-      localStorage.setItem("rngGameSave", JSON.stringify(data));
-
-      const leaderboard = getLeaderboard();
-      const existing = leaderboard.find(player => player.name.toLowerCase() === playerName.toLowerCase());
-      if (existing) {
-        existing.auras = Math.max(existing.auras, auraCount);
-      } else {
-        leaderboard.push({ name: playerName, auras: auraCount });
+      const devPrompt = prompt("Enter developer key if you're a developer:");
+      if (devPrompt === secureKey) {
+        document.getElementById("devBtn").classList.remove("hidden");
       }
-      localStorage.setItem("rngLeaderboard", JSON.stringify(leaderboard));
-    }
+    };
 
-    function loadGame() {
-      const saved = JSON.parse(localStorage.getItem("rngGameSave"));
-      if (saved && saved.playerName === playerName) {
-        auraCount = saved.auraCount || 0;
-        isDev = saved.isDev || false;
-        if (isDev) {
-          document.getElementById("devIndicator").style.display = "block";
-        }
-      }
-    }
+    const rollAura = () => {
+      if (cooldownActive) return;
+      cooldownActive = true;
+      setTimeout(() => cooldownActive = false, rollCooldown);
 
-    function getLeaderboard() {
-      return JSON.parse(localStorage.getItem("rngLeaderboard") || "[]");
-    }
+      const name = gameData.currentUser;
+      const aura = auras[Math.floor(Math.random() * auras.length)];
+      gameData.leaderboard[name].aura = aura;
+      gameData.leaderboard[name].auras.push(aura);
+      updateAuraList();
+      document.getElementById("aura").innerText = `Aura: ${aura}`;
+      saveData();
+    };
 
-    function updateLeaderboard() {
-      const list = document.getElementById("leaderboardList");
-      const data = getLeaderboard();
-      data.sort((a, b) => b.auras - a.auras);
-      list.innerHTML = "";
-      data.forEach(player => {
-        const item = document.createElement("li");
-        item.textContent = `${player.name}: ${player.auras} auras`;
-        list.appendChild(item);
+    const sellAura = () => {
+      const name = gameData.currentUser;
+      const user = gameData.leaderboard[name];
+      const lastAura = user.auras.pop();
+      if (!lastAura) return alert("No aura to sell.");
+      const pointsEarned = Math.floor(Math.random() * 100) + 1;
+      user.points += pointsEarned;
+      document.getElementById("points").innerText = `Points: ${user.points}`;
+      updateAuraList();
+      saveData();
+    };
+
+    const updateAuraList = () => {
+      const list = document.getElementById("auraList");
+      const name = gameData.currentUser;
+      list.innerHTML = '';
+      gameData.leaderboard[name].auras.forEach(a => {
+        const li = document.createElement("li");
+        li.textContent = a;
+        list.appendChild(li);
       });
-    }
+    };
 
-    function enterDevMode() {
-      const input = prompt("Enter developer key:");
-      if (input === DEV_KEY) {
-        isDev = true;
-        document.getElementById("devIndicator").style.display = "block";
-        alert("Developer mode enabled.");
-        saveGame();
+    const updateLeaderboard = () => {
+      const lb = document.getElementById("leaderboard");
+      lb.innerHTML = '';
+      Object.entries(gameData.leaderboard)
+        .sort((a, b) => b[1].points - a[1].points)
+        .forEach(([name, data]) => {
+          const div = document.createElement("div");
+          div.textContent = `${name}: ${data.points} pts`;
+          div.style.userSelect = "none";
+          lb.appendChild(div);
+        });
+    };
+
+    const toggleDebug = () => {
+      const tab = document.getElementById("debugTab");
+      tab.classList.toggle("hidden");
+    };
+
+    const deletePlayer = () => {
+      const name = document.getElementById("targetName").value.trim();
+      if (gameData.leaderboard[name]) {
+        delete gameData.leaderboard[name];
+        updateLeaderboard();
+        saveData();
+        alert(`Deleted ${name}`);
       } else {
-        alert("Invalid key.");
+        alert("Player not found.");
       }
-    }
+    };
 
-    window.onload = updateLeaderboard;
+    const resetScore = () => {
+      const name = document.getElementById("targetName").value.trim();
+      if (gameData.leaderboard[name]) {
+        gameData.leaderboard[name].points = 0;
+        gameData.leaderboard[name].auras = [];
+        gameData.leaderboard[name].aura = 'None';
+        updateLeaderboard();
+        updateAuraList();
+        saveData();
+        alert(`${name}'s score reset.`);
+      } else {
+        alert("Player not found.");
+      }
+    };
+
+    if (gameData.currentUser && gameData.leaderboard[gameData.currentUser]) {
+      startGame();
+    }
   </script>
 </body>
 </html>
