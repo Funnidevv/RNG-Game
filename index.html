@@ -6,18 +6,14 @@
   <title>Aura RNG Game</title>
   <style>
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', sans-serif;
       background: linear-gradient(to right, #1f1c2c, #928dab);
       color: #fff;
       text-align: center;
       padding: 20px;
     }
 
-    h1 {
-      margin-bottom: 10px;
-    }
-
-    input, button, select {
+    input, button {
       padding: 10px;
       margin: 5px;
       font-size: 16px;
@@ -29,7 +25,6 @@
       background: #5e60ce;
       color: #fff;
       cursor: pointer;
-      transition: background 0.3s ease;
     }
 
     button:hover {
@@ -46,7 +41,6 @@
 
     #leaderboard, #debugTab {
       white-space: pre-line;
-      word-wrap: break-word;
       user-select: none;
     }
 
@@ -54,23 +48,28 @@
       display: none;
     }
 
+    .aura-list li {
+      background: rgba(255, 255, 255, 0.1);
+      margin: 5px;
+      padding: 5px;
+      border-radius: 5px;
+    }
+
     .aura-list {
       list-style-type: none;
       padding: 0;
     }
 
-    .aura-list li {
-      background: rgba(255, 255, 255, 0.1);
-      margin: 5px 0;
-      padding: 5px;
-      border-radius: 5px;
+    input[type="text"] {
+      width: 80%;
     }
   </style>
 </head>
 <body>
   <h1>Aura RNG Game</h1>
+
   <div class="section">
-    <input id="nameInput" placeholder="Enter your name" />
+    <input id="nameInput" placeholder="Enter a unique name" />
     <button onclick="register()">Start</button>
   </div>
 
@@ -81,7 +80,6 @@
     <button id="rollBtn" onclick="rollAura()">Roll Aura</button>
     <ul id="auraList" class="aura-list"></ul>
     <button onclick="sellAura()">Sell Aura</button>
-    <button onclick="toggleDebug()" id="devBtn" class="hidden">Open Debug Tab</button>
   </div>
 
   <div id="leaderboardSection" class="section">
@@ -90,36 +88,35 @@
   </div>
 
   <div id="debugTab" class="section hidden">
-    <h2>Developer Debug Tab</h2>
-    <input id="targetName" placeholder="Player name" />
+    <h2>Developer Debug</h2>
+    <input id="targetName" placeholder="Target Player Name" /><br />
     <button onclick="deletePlayer()">Delete Player</button>
     <button onclick="resetScore()">Reset Score</button>
-    <p><b>Developer Key Verified</b></p>
+    <button onclick="giveInfinite()">Give Infinite Points</button>
+    <button onclick="giveSpecialAura()">Give Special Aura</button>
+    <p><strong>Developer Access Granted</strong></p>
   </div>
 
   <script>
-    const secureKey = '2rY8s9Q3vT5bM1zLkE7oP0xCgFuJhV9a'; // Secure dev key
-    const rollCooldown = 2000; // 2 seconds cooldown
     const auras = ['Red', 'Blue', 'Green', 'Epic', 'Legendary', 'Mythic', 'Celestial', 'Quantum', 'Void', 'Divine'];
-    let cooldownActive = false;
+    const specialAuras = ['Admin', 'Godly', 'Bugged', 'Omega', 'Overseer'];
+    const rollCooldown = 2000;
+    let cooldown = false;
+    let devUnlocked = false;
+    let inputBuffer = '';
 
     const gameData = JSON.parse(localStorage.getItem("rngGameData")) || {
       leaderboard: {},
-      currentUser: null,
-      users: {}
+      currentUser: null
     };
 
     const saveData = () => localStorage.setItem("rngGameData", JSON.stringify(gameData));
 
     const register = () => {
       const name = document.getElementById("nameInput").value.trim();
-      if (!name || gameData.leaderboard[name]) {
-        alert("Enter a unique name.");
-        return;
-      }
+      if (!name || gameData.leaderboard[name]) return alert("Enter a unique name.");
       gameData.currentUser = name;
       gameData.leaderboard[name] = { aura: 'None', points: 0, auras: [] };
-      gameData.users[name] = {};
       saveData();
       startGame();
     };
@@ -127,39 +124,34 @@
     const startGame = () => {
       const name = gameData.currentUser;
       const user = gameData.leaderboard[name];
+      document.getElementById("game").classList.remove("hidden");
       document.getElementById("welcome").innerText = `Welcome, ${name}`;
       document.getElementById("aura").innerText = `Aura: ${user.aura}`;
       document.getElementById("points").innerText = `Points: ${user.points}`;
       updateAuraList();
-      document.getElementById("game").classList.remove("hidden");
       updateLeaderboard();
-      const devPrompt = prompt("Enter developer key if you're a developer:");
-      if (devPrompt === secureKey) {
-        document.getElementById("devBtn").classList.remove("hidden");
-      }
     };
 
     const rollAura = () => {
-      if (cooldownActive) return;
-      cooldownActive = true;
-      setTimeout(() => cooldownActive = false, rollCooldown);
-
+      if (cooldown) return;
+      cooldown = true;
+      setTimeout(() => cooldown = false, rollCooldown);
       const name = gameData.currentUser;
       const aura = auras[Math.floor(Math.random() * auras.length)];
-      gameData.leaderboard[name].aura = aura;
-      gameData.leaderboard[name].auras.push(aura);
-      updateAuraList();
+      const user = gameData.leaderboard[name];
+      user.aura = aura;
+      user.auras.push(aura);
       document.getElementById("aura").innerText = `Aura: ${aura}`;
+      updateAuraList();
       saveData();
     };
 
     const sellAura = () => {
-      const name = gameData.currentUser;
-      const user = gameData.leaderboard[name];
-      const lastAura = user.auras.pop();
-      if (!lastAura) return alert("No aura to sell.");
-      const pointsEarned = Math.floor(Math.random() * 100) + 1;
-      user.points += pointsEarned;
+      const user = gameData.leaderboard[gameData.currentUser];
+      const aura = user.auras.pop();
+      if (!aura) return alert("No auras to sell.");
+      const gain = Math.floor(Math.random() * 100) + 10;
+      user.points += gain;
       document.getElementById("points").innerText = `Points: ${user.points}`;
       updateAuraList();
       saveData();
@@ -167,63 +159,93 @@
 
     const updateAuraList = () => {
       const list = document.getElementById("auraList");
-      const name = gameData.currentUser;
+      const auras = gameData.leaderboard[gameData.currentUser].auras;
       list.innerHTML = '';
-      gameData.leaderboard[name].auras.forEach(a => {
+      auras.forEach(aura => {
         const li = document.createElement("li");
-        li.textContent = a;
+        li.textContent = aura;
         list.appendChild(li);
       });
     };
 
     const updateLeaderboard = () => {
-      const lb = document.getElementById("leaderboard");
-      lb.innerHTML = '';
+      const board = document.getElementById("leaderboard");
+      board.innerHTML = '';
       Object.entries(gameData.leaderboard)
         .sort((a, b) => b[1].points - a[1].points)
-        .forEach(([name, data]) => {
-          const div = document.createElement("div");
-          div.textContent = `${name}: ${data.points} pts`;
-          div.style.userSelect = "none";
-          lb.appendChild(div);
+        .forEach(([name, user]) => {
+          const p = document.createElement("p");
+          p.textContent = `${name}: ${user.points} pts`;
+          p.style.userSelect = "none";
+          board.appendChild(p);
         });
-    };
-
-    const toggleDebug = () => {
-      const tab = document.getElementById("debugTab");
-      tab.classList.toggle("hidden");
     };
 
     const deletePlayer = () => {
       const name = document.getElementById("targetName").value.trim();
       if (gameData.leaderboard[name]) {
         delete gameData.leaderboard[name];
-        updateLeaderboard();
         saveData();
-        alert(`Deleted ${name}`);
-      } else {
-        alert("Player not found.");
-      }
+        updateLeaderboard();
+        alert(`${name} deleted.`);
+      } else alert("Player not found.");
     };
 
     const resetScore = () => {
       const name = document.getElementById("targetName").value.trim();
-      if (gameData.leaderboard[name]) {
-        gameData.leaderboard[name].points = 0;
-        gameData.leaderboard[name].auras = [];
-        gameData.leaderboard[name].aura = 'None';
-        updateLeaderboard();
-        updateAuraList();
+      const user = gameData.leaderboard[name];
+      if (user) {
+        user.points = 0;
+        user.auras = [];
+        user.aura = 'None';
         saveData();
+        updateLeaderboard();
+        if (gameData.currentUser === name) updateAuraList();
         alert(`${name}'s score reset.`);
-      } else {
-        alert("Player not found.");
-      }
+      } else alert("Player not found.");
     };
 
-    if (gameData.currentUser && gameData.leaderboard[gameData.currentUser]) {
-      startGame();
-    }
+    const giveInfinite = () => {
+      const name = document.getElementById("targetName").value.trim();
+      const user = gameData.leaderboard[name];
+      if (user) {
+        user.points = 999999;
+        saveData();
+        updateLeaderboard();
+        alert(`${name} now has infinite points.`);
+      } else alert("Player not found.");
+    };
+
+    const giveSpecialAura = () => {
+      const name = document.getElementById("targetName").value.trim();
+      const user = gameData.leaderboard[name];
+      if (user) {
+        const aura = specialAuras[Math.floor(Math.random() * specialAuras.length)];
+        user.auras.push(aura);
+        user.aura = aura;
+        saveData();
+        updateLeaderboard();
+        if (gameData.currentUser === name) {
+          document.getElementById("aura").innerText = `Aura: ${aura}`;
+          updateAuraList();
+        }
+        alert(`${name} received special aura: ${aura}`);
+      } else alert("Player not found.");
+    };
+
+    // Secret dev mode activation
+    document.addEventListener('keydown', (e) => {
+      inputBuffer += e.key.toUpperCase();
+      if (inputBuffer.length > 9) inputBuffer = inputBuffer.slice(-9);
+      if (inputBuffer.endsWith("DEVACCESS")) {
+        document.getElementById("debugTab").classList.remove("hidden");
+        devUnlocked = true;
+        alert("Developer Mode Activated.");
+      }
+    });
+
+    // Auto-start if user already registered
+    if (gameData.currentUser && gameData.leaderboard[gameData.currentUser]) startGame();
   </script>
 </body>
 </html>
