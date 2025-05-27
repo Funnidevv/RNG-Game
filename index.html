@@ -10,23 +10,76 @@
       margin: 0; padding: 0; font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
       color: #fff;
-      display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+      box-sizing: border-box;
     }
     header {
-      padding: 2rem;
       font-size: 2.8rem;
       font-weight: 700;
       letter-spacing: 0.1rem;
       text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+      margin-bottom: 1rem;
+      user-select: none;
     }
     main {
       background: rgba(255,255,255,0.05);
       border-radius: 12px;
       padding: 2rem;
-      max-width: 400px;
+      max-width: 960px;
       width: 100%;
       box-shadow: 0 0 30px rgba(255,255,255,0.1);
-      display: flex; flex-direction: column; gap: 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 1.8rem;
+      box-sizing: border-box;
+    }
+    section {
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+    }
+    h2 {
+      margin-top: 0;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 0.5rem;
+      font-weight: 700;
+      letter-spacing: 0.05rem;
+      user-select: none;
+    }
+    .aura-display {
+      text-align: center;
+      font-size: 2.8rem;
+      font-weight: 700;
+      padding: 1rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      box-shadow: 0 0 15px rgba(255,255,255,0.3);
+      min-height: 100px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      user-select: none;
+      animation: glow 2s infinite alternate;
+      margin-bottom: 1rem;
+    }
+    @keyframes glow {
+      0% { text-shadow: 0 0 5px #fff, 0 0 10px #2980b9, 0 0 20px #3498db;}
+      100% { text-shadow: 0 0 20px #fff, 0 0 40px #2980b9, 0 0 60px #3498db;}
+    }
+    .aura-category {
+      font-size: 1.3rem;
+      margin-top: 0.3rem;
+      font-weight: 600;
+      color: #eee;
+      text-transform: uppercase;
+      user-select: none;
     }
     button {
       background: #2980b9;
@@ -40,6 +93,7 @@
       transition: background 0.3s ease;
       width: 100%;
       box-sizing: border-box;
+      user-select: none;
     }
     button:hover:not(:disabled) {
       background: #3498db;
@@ -48,63 +102,31 @@
       background: #555;
       cursor: not-allowed;
     }
-    .aura-display {
-      text-align: center;
-      font-size: 2.5rem;
-      font-weight: 700;
-      padding: 1rem;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.1);
-      box-shadow: 0 0 15px rgba(255,255,255,0.3);
-      min-height: 80px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      user-select: none;
-      animation: glow 2s infinite alternate;
-    }
-    @keyframes glow {
-      0% { text-shadow: 0 0 5px #fff, 0 0 10px #2980b9, 0 0 20px #3498db;}
-      100% { text-shadow: 0 0 20px #fff, 0 0 40px #2980b9, 0 0 60px #3498db;}
-    }
-    .aura-category {
-      font-size: 1.2rem;
-      margin-top: 0.3rem;
-      font-weight: 500;
-      color: #eee;
-      text-transform: uppercase;
-    }
     .coins {
       font-weight: 700;
-      font-size: 1.3rem;
+      font-size: 1.4rem;
       margin: 1rem 0;
       text-align: center;
-    }
-    .inventory, .shop, .leaderboard-section {
-      background: rgba(255,255,255,0.08);
-      border-radius: 12px;
-      padding: 1rem;
-    }
-    h2 {
-      margin-top: 0; margin-bottom: 1rem;
-      border-bottom: 2px solid #3498db;
-      padding-bottom: 0.5rem;
-      font-weight: 700;
-      letter-spacing: 0.05rem;
+      user-select: none;
     }
     ul {
       list-style: none;
       padding-left: 0;
-      max-height: 150px;
+      max-height: 180px;
       overflow-y: auto;
       margin: 0;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      background: rgba(0,0,0,0.15);
     }
     li {
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      padding: 0.3rem 0.6rem;
+      padding: 0.4rem 0.8rem;
       border-bottom: 1px solid rgba(255,255,255,0.15);
       font-weight: 600;
+      user-select: none;
     }
     li:last-child {
       border-bottom: none;
@@ -139,21 +161,49 @@
       box-sizing: border-box;
     }
     footer {
-      margin-top: auto;
+      margin-top: 1.5rem;
       padding: 1rem;
       font-size: 0.85rem;
       color: #bbb;
       text-align: center;
+      user-select: none;
     }
+    /* Flex utilities */
     .flex-row {
       display: flex;
       justify-content: space-between;
       gap: 0.8rem;
+      align-items: center;
     }
     .flex-col {
       display: flex;
       flex-direction: column;
       gap: 0.6rem;
+    }
+    .inventory-item-label {
+      flex-grow: 1;
+      padding-left: 0.5rem;
+      user-select: text;
+    }
+    .sell-button {
+      margin-top: 0.8rem;
+      background: #27ae60;
+      transition: background 0.3s ease;
+    }
+    .sell-button:hover:not(:disabled) {
+      background: #2ecc71;
+    }
+    /* Scrollbar styling */
+    ul::-webkit-scrollbar {
+      width: 6px;
+    }
+    ul::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+    }
+    ul::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.3);
+      border-radius: 3px;
     }
   </style>
 </head>
@@ -162,33 +212,28 @@
 <header>RNG Game</header>
 
 <main>
-  <section class="gameplay">
-    <h2>Generate Aura</h2>
-    <div class="aura-display" id="aura-display">
-      -
-      <div class="aura-category" id="aura-category"></div>
-    </div>
-    <button id="generate-aura-btn">Generate Aura</button>
-    <button id="sell-aura-btn" disabled>Sell Aura for Coins</button>
+  <!-- Left column: Rolling + Inventory -->
+  <section>
+    <h2>Roll Aura</h2>
+    <div class="aura-display" id="aura-display">-<div class="aura-category" id="aura-category"></div></div>
+    <button id="roll-btn">Roll</button>
     <div class="coins" id="coins-display">Coins: 0</div>
-  </section>
 
-  <section class="inventory">
     <h2>Your Auras</h2>
     <ul id="inventory-list">
       <li style="text-align:center; color:#bbb;">No auras collected yet.</li>
     </ul>
+    <button class="sell-button" id="sell-selected-btn" disabled>Sell Selected Auras</button>
   </section>
 
-  <section class="shop">
+  <!-- Right column: Shop + Leaderboard -->
+  <section>
     <h2>Shop Upgrades</h2>
     <ul id="shop-list">
       <!-- Dynamically populated -->
     </ul>
-  </section>
 
-  <section class="leaderboard-section">
-    <h2>Leaderboard</h2>
+    <h2 style="margin-top: 2rem;">Leaderboard</h2>
     <ul id="leaderboard-list">
       <li style="text-align:center; color:#bbb;">No scores yet.</li>
     </ul>
@@ -203,23 +248,23 @@
 (() => {
   const auraDisplay = document.getElementById('aura-display');
   const auraCategoryEl = document.getElementById('aura-category');
-  const generateAuraBtn = document.getElementById('generate-aura-btn');
-  const sellAuraBtn = document.getElementById('sell-aura-btn');
+  const rollBtn = document.getElementById('roll-btn');
   const coinsDisplay = document.getElementById('coins-display');
   const inventoryList = document.getElementById('inventory-list');
   const shopList = document.getElementById('shop-list');
   const leaderboardList = document.getElementById('leaderboard-list');
   const playerNameInput = document.getElementById('player-name');
   const saveScoreBtn = document.getElementById('save-score-btn');
+  const sellSelectedBtn = document.getElementById('sell-selected-btn');
 
-  // Aura definitions with category, base sell price and weights (for RNG)
+  // Aura definitions with rarity and weights
   const AURAS = [
     { name: 'Glowing Mist', category: 'Common', basePrice: 10, weight: 50 },
     { name: 'Shimmering Breeze', category: 'Common', basePrice: 15, weight: 40 },
-    { name: 'Luminous Glow', category: 'Rare', basePrice: 50, weight: 25 },
-    { name: 'Twilight Spark', category: 'Rare', basePrice: 60, weight: 20 },
-    { name: 'Ethereal Flame', category: 'Epic', basePrice: 120, weight: 10 },
-    { name: 'Celestial Radiance', category: 'Epic', basePrice: 140, weight: 8 },
+    { name: 'Luminous Glow', category: 'Rare', basePrice: 50, weight: 20 },
+    { name: 'Twilight Spark', category: 'Rare', basePrice: 60, weight: 15 },
+    { name: 'Ethereal Flame', category: 'Epic', basePrice: 120, weight: 8 },
+    { name: 'Celestial Radiance', category: 'Epic', basePrice: 140, weight: 6 },
     { name: 'Legendary Nova', category: 'Legendary', basePrice: 300, weight: 3 },
     { name: 'Mythic Pulse', category: 'Legendary', basePrice: 350, weight: 2 },
   ];
@@ -233,7 +278,6 @@
       price: 500,
       purchased: false,
       effect: () => {
-        // Adjust weights to increase chance for Rare, Epic, Legendary
         AURAS.forEach(a => {
           if (a.category === 'Common') a.weight = 25;
           else if (a.category === 'Rare') a.weight = 40;
@@ -244,12 +288,12 @@
     },
     {
       id: 'auto_generate',
-      name: 'Auto Generate Aura',
-      description: 'Automatically generate an aura every 10 seconds.',
+      name: 'Auto Roll Aura',
+      description: 'Automatically roll an aura every 10 seconds.',
       price: 1000,
       purchased: false,
       effect: () => {
-        setupAutoGenerate();
+        setupAutoRoll();
       }
     },
     {
@@ -266,8 +310,7 @@
 
   let gameState = {
     coins: 0,
-    inventory: {},
-    currentAura: null,
+    inventory: {},      // { auraName: count }
     sellBonus: 0,
     totalCoinsEarned: 0,
     upgrades: {}
@@ -283,29 +326,19 @@
       if (rand < aura.weight) return aura;
       rand -= aura.weight;
     }
-    return AURAS[0];
+    return AURAS[0]; // fallback
   }
 
   // Render functions
-  function renderCurrentAura() {
-    if (!gameState.currentAura) {
-      auraDisplay.textContent = '-';
-      auraCategoryEl.textContent = '';
-      return;
-    }
-    auraDisplay.textContent = gameState.currentAura.name;
-    auraCategoryEl.textContent = gameState.currentAura.category;
-    auraDisplay.className = 'aura-display category-' + gameState.currentAura.category.toLowerCase();
-  }
-
   function renderCoins() {
-    coinsDisplay.textContent = 'Coins: ' + gameState.coins;
+    coinsDisplay.textContent = `Coins: ${gameState.coins}`;
   }
 
   function renderInventory() {
     const inv = gameState.inventory;
     if (Object.keys(inv).length === 0) {
       inventoryList.innerHTML = '<li style="text-align:center; color:#bbb;">No auras collected yet.</li>';
+      sellSelectedBtn.disabled = true;
       return;
     }
     inventoryList.innerHTML = '';
@@ -314,12 +347,29 @@
       if (!aura) return;
       const li = document.createElement('li');
       li.className = 'category-' + aura.category.toLowerCase();
-      li.textContent = `${name} (${aura.category})`;
-      const span = document.createElement('span');
-      span.textContent = `x${count}`;
-      li.appendChild(span);
+
+      // Checkbox for selecting to sell
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.dataset.name = name;
+      checkbox.addEventListener('change', updateSellButtonState);
+
+      // Label with aura name and count
+      const label = document.createElement('label');
+      label.className = 'inventory-item-label';
+      label.textContent = `${name} (${aura.category}) x${count}`;
+
+      li.appendChild(checkbox);
+      li.appendChild(label);
       inventoryList.appendChild(li);
     });
+    updateSellButtonState();
+  }
+
+  // Enable sell button only if something selected
+  function updateSellButtonState() {
+    const checked = inventoryList.querySelectorAll('input[type=checkbox]:checked');
+    sellSelectedBtn.disabled = checked.length === 0;
   }
 
   function renderShop() {
@@ -327,6 +377,7 @@
     SHOP_UPGRADES.forEach(upg => {
       const li = document.createElement('li');
       li.className = 'shop-item';
+
       const desc = document.createElement('div');
       desc.style.flex = '1';
       desc.innerHTML = `<strong>${upg.name}</strong><br/><small>${upg.description}</small><br/><small>Price: ${upg.price} coins</small>`;
@@ -355,6 +406,74 @@
     });
   }
 
+  // Display rolled aura in big box with category color glow
+  function showAura(aura) {
+    if (!aura) {
+      auraDisplay.textContent = '-';
+      auraCategoryEl.textContent = '';
+      auraDisplay.className = 'aura-display';
+      return;
+    }
+    auraDisplay.textContent = aura.name;
+    auraCategoryEl.textContent = aura.category;
+    auraDisplay.className = 'aura-display category-' + aura.category.toLowerCase();
+  }
+
+  // Roll aura handler - add to inventory directly, no immediate sell needed
+  function rollAura() {
+    const aura = weightedRandomAura();
+
+    // Add to inventory
+    if (!gameState.inventory[aura.name]) gameState.inventory[aura.name] = 0;
+    gameState.inventory[aura.name]++;
+
+    // Show the rolled aura in the big display briefly
+    showAura(aura);
+
+    renderInventory();
+    rollBtn.disabled = true;
+    setTimeout(() => {
+      showAura(null);
+      rollBtn.disabled = false;
+    }, 1500);
+    saveGame();
+  }
+
+  // Sell selected auras from inventory
+  function sellSelectedAuras() {
+    const checkedBoxes = Array.from(inventoryList.querySelectorAll('input[type=checkbox]:checked'));
+    if (checkedBoxes.length === 0) return;
+
+    let totalPrice = 0;
+    checkedBoxes.forEach(box => {
+      const name = box.dataset.name;
+      const aura = AURAS.find(a => a.name === name);
+      if (!aura) return;
+      const count = gameState.inventory[name];
+      // Sell all selected count, so 1 per box? Here we sell all of that aura at once for simplicity:
+      // But user might want partial selling - for simplicity sell all count for that aura selected:
+      // Or sell only one per checked box? Here, one checkbox per aura, so all counted.
+      let sellCount = count;
+      let price = aura.basePrice * sellCount;
+      if (gameState.sellBonus) {
+        price = Math.floor(price * (1 + gameState.sellBonus));
+      }
+      totalPrice += price;
+
+      // Remove from inventory
+      delete gameState.inventory[name];
+    });
+
+    if (totalPrice > 0) {
+      gameState.coins += totalPrice;
+      gameState.totalCoinsEarned += totalPrice;
+      renderCoins();
+      renderInventory();
+      saveGame();
+      checkSaveButton();
+    }
+  }
+
   // Load/save game state
   function saveGame() {
     localStorage.setItem('rnggame_state', JSON.stringify(gameState));
@@ -365,7 +484,7 @@
     if (data) {
       try {
         gameState = JSON.parse(data);
-        // Restore upgrades purchased flags
+        // Restore upgrades purchased flags & apply effects
         SHOP_UPGRADES.forEach(upg => {
           upg.purchased = !!gameState.upgrades[upg.id];
           if (upg.purchased && upg.effect) upg.effect();
@@ -405,44 +524,14 @@
     saveGame();
   }
 
-  // Sell current aura
-  function sellCurrentAura() {
-    if (!gameState.currentAura) return;
-    const aura = gameState.currentAura;
-    let price = aura.basePrice;
-    if (gameState.sellBonus) {
-      price = Math.floor(price * (1 + gameState.sellBonus));
-    }
-    gameState.coins += price;
-    gameState.totalCoinsEarned += price;
-
-    // Add aura to inventory
-    if (!gameState.inventory[aura.name]) gameState.inventory[aura.name] = 0;
-    gameState.inventory[aura.name]++;
-
-    gameState.currentAura = null;
-    renderCoins();
-    renderInventory();
-    renderCurrentAura();
-    sellAuraBtn.disabled = true;
-    saveGame();
-    checkSaveButton();
-  }
-
-  // Auto generate aura setup
-  let autoGenerateInterval = null;
-  function setupAutoGenerate() {
-    if (autoGenerateInterval) clearInterval(autoGenerateInterval);
+  // Auto roll aura setup
+  let autoRollInterval = null;
+  function setupAutoRoll() {
+    if (autoRollInterval) clearInterval(autoRollInterval);
     const upg = SHOP_UPGRADES.find(u => u.id === 'auto_generate');
     if (upg && upg.purchased) {
-      autoGenerateInterval = setInterval(() => {
-        if (!gameState.currentAura) {
-          const aura = weightedRandomAura();
-          gameState.currentAura = aura;
-          renderCurrentAura();
-          sellAuraBtn.disabled = false;
-          generateAuraBtn.disabled = true;
-        }
+      autoRollInterval = setInterval(() => {
+        rollAura();
       }, 10000);
     }
   }
@@ -454,82 +543,58 @@
       alert('Please enter your name.');
       return;
     }
-
-    // Add or update player score if higher
-    const existing = leaderboard.find(p => p.name.toLowerCase() === name.toLowerCase());
+    if (gameState.totalCoinsEarned === 0) {
+      alert('You need to earn coins before saving your score!');
+      return;
+    }
+    // Add or update player score
+    const existing = leaderboard.find(entry => entry.name.toLowerCase() === name.toLowerCase());
     if (existing) {
       if (gameState.totalCoinsEarned > existing.coins) {
         existing.coins = gameState.totalCoinsEarned;
-      } else {
-        alert('You already have a higher score saved.');
-        return;
       }
     } else {
       leaderboard.push({ name, coins: gameState.totalCoinsEarned });
     }
-    // Sort desc
+    // Sort descending by coins
     leaderboard.sort((a,b) => b.coins - a.coins);
-
     // Keep top 10
     leaderboard = leaderboard.slice(0,10);
-
     saveLeaderboard();
     renderLeaderboard();
-
     saveScoreBtn.disabled = true;
+    alert('Score saved!');
   }
 
-  // Enable/disable save score button based on input
   function checkSaveButton() {
-    saveScoreBtn.disabled = !playerNameInput.value.trim() || gameState.totalCoinsEarned === 0;
+    const name = playerNameInput.value.trim();
+    saveScoreBtn.disabled = !(name && gameState.totalCoinsEarned > 0);
   }
 
-  // Generate aura button handler
-  function generateAura() {
-    if (gameState.currentAura) return; // Only one aura at a time
-    const aura = weightedRandomAura();
-    gameState.currentAura = aura;
-    renderCurrentAura();
-    sellAuraBtn.disabled = false;
-    generateAuraBtn.disabled = true;
-  }
-
-  // Setup event listeners
-  generateAuraBtn.addEventListener('click', () => {
-    generateAura();
-  });
-
-  sellAuraBtn.addEventListener('click', () => {
-    sellCurrentAura();
-    generateAuraBtn.disabled = false;
-  });
-
+  // Event listeners
+  rollBtn.addEventListener('click', rollAura);
+  sellSelectedBtn.addEventListener('click', sellSelectedAuras);
   shopList.addEventListener('click', e => {
-    if (e.target.tagName === 'BUTTON') {
-      const id = e.target.dataset.id;
-      buyUpgrade(id);
+    if (e.target.tagName === 'BUTTON' && !e.target.disabled) {
+      buyUpgrade(e.target.dataset.id);
+      setupAutoRoll();
     }
   });
-
-  saveScoreBtn.addEventListener('click', () => {
-    saveScore();
-  });
-
+  saveScoreBtn.addEventListener('click', saveScore);
   playerNameInput.addEventListener('input', checkSaveButton);
 
-  // Initialize
-  function init() {
-    loadGame();
-    loadLeaderboard();
-    renderCoins();
-    renderInventory();
-    renderShop();
-    renderCurrentAura();
-    checkSaveButton();
-    setupAutoGenerate();
-  }
+  // Init
+  loadGame();
+  loadLeaderboard();
+  renderCoins();
+  renderInventory();
+  renderShop();
+  renderLeaderboard();
+  setupAutoRoll();
 
-  init();
+  showAura(null);
+  checkSaveButton();
+
 })();
 </script>
 
