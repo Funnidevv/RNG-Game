@@ -1,34 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Aura RNG Game</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 50px; }
-    #rollBtn[disabled] { opacity: 0.5; cursor: not-allowed; }
-    .aura { font-weight: bold; }
-    #leaderboard { margin-top: 20px; }
-    .dev-mode { color: red; font-weight: bold; }
+    :root {
+      --primary: #6c63ff;
+      --bg: #121212;
+      --card-bg: rgba(255, 255, 255, 0.05);
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #f0f0f0;
+      --accent: #00ffd0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 25px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      margin-bottom: 20px;
+    }
+
+    input[type="text"] {
+      padding: 10px;
+      width: 70%;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      background: #1f1f1f;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: var(--primary);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      margin: 5px;
+    }
+
+    button:hover {
+      background: #4d45e2;
+    }
+
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+
+    #auraDisplay {
+      font-size: 1.2rem;
+      margin: 10px 0;
+    }
+
+    .aura-count {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--accent);
+    }
+
+    .aura-type {
+      font-weight: bold;
+    }
+
+    #lastAura {
+      margin-top: 10px;
+      font-size: 1.1rem;
+    }
+
+    .dev-mode {
+      color: #ff4a4a;
+      margin-top: 10px;
+    }
+
+    ol {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 10px;
+    }
+
+    .aura-category.Common { color: #cccccc; }
+    .aura-category.Uncommon { color: #6effa1; }
+    .aura-category.Rare { color: #00bfff; }
+    .aura-category.Epic { color: #c770ff; }
+    .aura-category.Legendary { color: #ffa500; }
+    .aura-category.Mythic { color: #ff4da6; }
+    .aura-category.Celestial { color: #00ffe1; }
+    .aura-category.Corrupted { color: #ff3333; }
+
   </style>
 </head>
 <body>
   <h1>Aura RNG Game</h1>
 
-  <div id="nameInputDiv">
-    <input id="playerName" placeholder="Enter unique name" />
-    <button onclick="startGame()">Start</button>
+  <div class="container" id="nameInputDiv">
+    <input id="playerName" type="text" placeholder="Enter unique name" />
+    <button onclick="startGame()">Start Game</button>
   </div>
 
-  <div id="game" style="display: none;">
-    <p id="auraDisplay">You have: <span class="aura" id="auraCount">0</span> auras</p>
-    <button id="rollBtn" onclick="rollAura()">Roll Aura</button>
+  <div class="container" id="game" style="display: none;">
+    <div id="auraDisplay">Auras Collected: <span class="aura-count" id="auraCount">0</span></div>
+    <button id="rollBtn" onclick="rollAura()">🎲 Roll Aura</button>
     <p id="lastAura"></p>
-    <p id="devIndicator" class="dev-mode" style="display: none;">Developer Mode Active</p>
+    <p id="devIndicator" class="dev-mode" style="display: none;">👨‍💻 Developer Mode Enabled</p>
     <button onclick="enterDevMode()">Enter Dev Mode</button>
   </div>
 
-  <div id="leaderboard">
-    <h2>Leaderboard</h2>
+  <div class="container" id="leaderboard">
+    <h2>🏆 Leaderboard</h2>
     <ol id="leaderboardList"></ol>
   </div>
 
@@ -36,9 +154,9 @@
     const auraTypes = [
       "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic", "Celestial", "Corrupted"
     ];
-    const auraChances = [40, 25, 15, 10, 5, 3, 1.5, 0.5]; // Must sum to 100%
-    const cooldownTime = 3000; // 3 seconds
-    const DEV_KEY = "d3v-2a9b91f4f3e048fa9bcdab1a7f4f"; // Secure dev key
+    const auraChances = [40, 25, 15, 10, 5, 3, 1.5, 0.5];
+    const cooldownTime = 3000;
+    const DEV_KEY = "d3v-2a9b91f4f3e048fa9bcdab1a7f4f";
 
     let auraCount = 0;
     let isDev = false;
@@ -53,7 +171,7 @@
 
       const leaderboard = getLeaderboard();
       if (leaderboard.some(player => player.name.toLowerCase() === nameInput.toLowerCase())) {
-        alert("Name already exists on the leaderboard. Choose a different name.");
+        alert("Name already exists. Pick a new one.");
         return;
       }
 
@@ -74,8 +192,7 @@
 
       const aura = getRandomAura();
       auraCount += 1;
-
-      document.getElementById("lastAura").textContent = `You rolled a ${aura} aura!`;
+      document.getElementById("lastAura").innerHTML = `You rolled a <span class="aura-category ${aura}">${aura}</span> aura!`;
       updateDisplay();
       saveGame();
     }
@@ -88,7 +205,7 @@
         }
         rand -= auraChances[i];
       }
-      return auraTypes[0]; // fallback
+      return auraTypes[0];
     }
 
     function updateDisplay() {
@@ -133,7 +250,6 @@
       const list = document.getElementById("leaderboardList");
       const data = getLeaderboard();
       data.sort((a, b) => b.auras - a.auras);
-
       list.innerHTML = "";
       data.forEach(player => {
         const item = document.createElement("li");
@@ -147,10 +263,10 @@
       if (input === DEV_KEY) {
         isDev = true;
         document.getElementById("devIndicator").style.display = "block";
-        alert("Developer mode enabled! Infinite rolls and bypass cooldown.");
+        alert("Developer mode enabled.");
         saveGame();
       } else {
-        alert("Invalid developer key.");
+        alert("Invalid key.");
       }
     }
 
